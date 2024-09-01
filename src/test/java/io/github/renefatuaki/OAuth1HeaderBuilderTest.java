@@ -1,4 +1,4 @@
-package dev.elfa;
+package io.github.renefatuaki;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

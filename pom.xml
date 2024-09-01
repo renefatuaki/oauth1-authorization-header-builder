@@ -3,7 +3,7 @@
 				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>dev.elfa</groupId>
+	<groupId>io.github.renefatuaki</groupId>
 	<artifactId>oauth1-header-builder</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
@@ -118,6 +118,7 @@
 					<extensions>true</extensions>
 					<configuration>
 						<publishingServerId>central</publishingServerId>
+						<autoPublish>true</autoPublish>
 					</configuration>
 				</plugin>
 			</plugins>
