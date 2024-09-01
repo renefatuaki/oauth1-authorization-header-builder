@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class OAuth1HeaderBuilder {
 	private String consumerSecret;
-	private String method;
+	private String httpMethod;
 	private String signingKey;
 	private String tokenSecret;
 	private String url;
@@ -24,103 +24,32 @@ public class OAuth1HeaderBuilder {
 	private final Map<String, String> queryParametersMap = new LinkedHashMap<>();
 	private static final URLCodec CODEC = new URLCodec();
 
-	/**
-	 * Builds the OAuth1 authorization header string.
-	 *
-	 * @return the OAuth1 header string
-	 */
-	public String build() {
-		parameters.putIfAbsent("oauth_timestamp", String.valueOf(Instant.now().getEpochSecond()));
-		parameters.put("oauth_nonce", generateNonce());
-		parameters.put("oauth_signature_method", "HMAC-SHA1");
-		parameters.put("oauth_version", "1.0");
-		parameters.putAll(queryParametersMap);
-
-		String parameterString = parameters.entrySet().stream()
-				.sorted(Map.Entry.comparingByKey())
-				.map(param -> encodeUriComponent(param.getKey()) + "=" + encodeUriComponent(param.getValue()))
-				.collect(Collectors.joining("&"));
-
-		String signatureBaseString = method.toUpperCase() + "&" + encodeUriComponent(url) + "&" + encodeUriComponent(parameterString);
-
-		if (signingKey == null) {
-			signingKey = encodeUriComponent(consumerSecret) + "&" + (tokenSecret == null ? "" : encodeUriComponent(tokenSecret));
-		}
-
-		String signature = generateHmacSha1Signature(signingKey, signatureBaseString);
-		parameters.put("oauth_signature", signature);
-
-		return "OAuth " + parameters.entrySet().stream()
-				.map(param -> encodeUriComponent(param.getKey()) + "=\"" + encodeUriComponent(param.getValue()) + "\"")
-				.collect(Collectors.joining(", "));
+	public String getConsumerSecret() {
+		return consumerSecret;
 	}
 
-	/**
-	 * Encodes the given URI component using URL encoding.
-	 *
-	 * @param uriComponent the URI component to be encoded
-	 * @return the encoded URI component
-	 */
-	private static String encodeUriComponent(String uriComponent) {
-		try {
-			return CODEC.encode(uriComponent);
-		} catch (EncoderException e) {
-			throw new RuntimeException(e);
-		}
+	public String getHttpMethod() {
+		return httpMethod;
 	}
 
-	/**
-	 * Generates an HMAC-SHA1 signature for the given message using the provided secret.
-	 *
-	 * @param secret  the secret key used for generating the HMAC-SHA1 signature
-	 * @param message the message to be signed
-	 * @return the Base64-encoded HMAC-SHA1 signature
-	 */
-	private String generateHmacSha1Signature(String secret, String message) {
-		byte[] hmacSha1Bytes = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secret).hmac(message);
-		return Base64.getEncoder().encodeToString(hmacSha1Bytes);
+	public String getSigningKey() {
+		return signingKey;
 	}
 
-	/**
-	 * Extracts and processes each query parameter.
-	 *
-	 * @param query the query parameters
-	 */
-	private void handleQueryParam(String query) {
-		if (query == null || query.isBlank()) return;
-
-		Arrays.stream(query.split("&"))
-				.forEach(this::addQueryParameter);
+	public String getTokenSecret() {
+		return tokenSecret;
 	}
 
-	/**
-	 * Sets the consumer secret for OAuth1 authentication.
-	 *
-	 * @param consumerSecret the consumer secret to be set
-	 * @return the current instance for method chaining
-	 * @throws IllegalArgumentException if the consumer secret is null
-	 */
-	public OAuth1HeaderBuilder setConsumerSecret(String consumerSecret) {
-		if (consumerSecret == null) {
-			throw new IllegalArgumentException("Consumer secret cannot be null");
-		}
-		this.consumerSecret = consumerSecret;
-		return this;
+	public String getUrl() {
+		return url;
 	}
 
-	/**
-	 * Sets the HTTP method for the OAuth1 request.
-	 *
-	 * @param method the HTTP method to be set (e.g., "GET", "POST")
-	 * @return the current instance for method chaining
-	 * @throws IllegalArgumentException if the method is null or empty
-	 */
-	public OAuth1HeaderBuilder setHttpMethod(String method) {
-		if (method == null || method.isEmpty()) {
-			throw new IllegalArgumentException("Method cannot be null or empty");
-		}
-		this.method = method;
-		return this;
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public Map<String, String> getQueryParametersMap() {
+		return queryParametersMap;
 	}
 
 	/**
@@ -164,6 +93,36 @@ public class OAuth1HeaderBuilder {
 	}
 
 	/**
+	 * Sets the consumer secret for OAuth1 authentication.
+	 *
+	 * @param consumerSecret the consumer secret to be set
+	 * @return the current instance for method chaining
+	 * @throws IllegalArgumentException if the consumer secret is null
+	 */
+	public OAuth1HeaderBuilder setConsumerSecret(String consumerSecret) {
+		if (consumerSecret == null) {
+			throw new IllegalArgumentException("Consumer secret cannot be null");
+		}
+		this.consumerSecret = consumerSecret;
+		return this;
+	}
+
+	/**
+	 * Sets the HTTP method for the OAuth1 request.
+	 *
+	 * @param method the HTTP method to be set (e.g., "GET", "POST")
+	 * @return the current instance for method chaining
+	 * @throws IllegalArgumentException if the method is null or empty
+	 */
+	public OAuth1HeaderBuilder setHttpMethod(String method) {
+		if (method == null || method.isEmpty()) {
+			throw new IllegalArgumentException("Method cannot be null or empty");
+		}
+		this.httpMethod = method;
+		return this;
+	}
+
+	/**
 	 * Sets the token secret for OAuth1 authentication.
 	 *
 	 * @param tokenSecret the token secret to be set
@@ -188,7 +147,7 @@ public class OAuth1HeaderBuilder {
 	 * @throws IllegalArgumentException if the URL is null or empty
 	 */
 	public OAuth1HeaderBuilder setUrl(String url) {
-		if (url == null || url.isBlank()) {  // Use isBlank() to handle whitespace-only strings
+		if (url == null || url.isBlank()) {
 			throw new IllegalArgumentException("URL cannot be null or empty");
 		}
 
@@ -205,12 +164,73 @@ public class OAuth1HeaderBuilder {
 	}
 
 	/**
+	 * Builds the OAuth1 authorization header string.
+	 *
+	 * @return the OAuth1 header string
+	 */
+	public String build() {
+		if (consumerSecret == null) throw new IllegalArgumentException("Consumer secret cannot be null");
+		if (httpMethod == null || httpMethod.isEmpty()) throw new IllegalArgumentException("Method cannot be null or empty");
+		if (url == null || url.isEmpty()) throw new IllegalArgumentException("URL cannot be null or empty");
+
+		parameters.putIfAbsent("oauth_timestamp", String.valueOf(Instant.now().getEpochSecond()));
+		parameters.put("oauth_nonce", generateNonce());
+		parameters.put("oauth_signature_method", "HMAC-SHA1");
+		parameters.put("oauth_version", "1.0");
+		parameters.putAll(queryParametersMap);
+
+		String parameterString = parameters.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.map(param -> encodeUriComponent(param.getKey()) + "=" + encodeUriComponent(param.getValue()))
+				.collect(Collectors.joining("&"));
+
+		String signatureBaseString = httpMethod.toUpperCase() + "&" + encodeUriComponent(url) + "&" + encodeUriComponent(parameterString);
+
+		if (signingKey == null) {
+			signingKey = encodeUriComponent(consumerSecret) + "&" + (tokenSecret == null ? "" : encodeUriComponent(tokenSecret));
+		}
+
+		String signature = generateHmacSha1Signature(signingKey, signatureBaseString);
+		parameters.put("oauth_signature", signature);
+
+		return "OAuth " + parameters.entrySet().stream()
+				.map(param -> encodeUriComponent(param.getKey()) + "=\"" + encodeUriComponent(param.getValue()) + "\"")
+				.collect(Collectors.joining(", "));
+	}
+
+	/**
+	 * Encodes the given URI component using URL encoding.
+	 *
+	 * @param uriComponent the URI component to be encoded
+	 * @return the encoded URI component
+	 */
+	private String encodeUriComponent(String uriComponent) {
+		try {
+			return CODEC.encode(uriComponent);
+		} catch (EncoderException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Generates an HMAC-SHA1 signature for the given message using the provided secret.
+	 *
+	 * @param secret  the secret key used for generating the HMAC-SHA1 signature
+	 * @param message the message to be signed
+	 * @return the Base64-encoded HMAC-SHA1 signature
+	 */
+	private String generateHmacSha1Signature(String secret, String message) {
+		byte[] hmacSha1Bytes = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secret).hmac(message);
+		return Base64.getEncoder().encodeToString(hmacSha1Bytes);
+	}
+
+	/**
 	 * Generates a nonce (a unique, one-time-use value) for OAuth1 authentication.
 	 * The nonce is a 15-digit random number, which is then hashed using MD5.
 	 *
 	 * @return a unique MD5 hash of a 15-digit random number
 	 */
-	private static String generateNonce() {
+	private String generateNonce() {
 		StringBuilder randomDigits = new StringBuilder(15);
 		SecureRandom secureRandom = new SecureRandom();
 
@@ -219,5 +239,17 @@ public class OAuth1HeaderBuilder {
 		}
 
 		return DigestUtils.md5Hex(randomDigits.toString());
+	}
+
+	/**
+	 * Extracts and processes each query parameter.
+	 *
+	 * @param query the query parameters
+	 */
+	private void handleQueryParam(String query) {
+		if (query == null || query.isBlank()) return;
+
+		Arrays.stream(query.split("&"))
+				.forEach(this::addQueryParameter);
 	}
 }
