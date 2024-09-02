@@ -14,7 +14,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class OAuth1HeaderBuilder {
+/**
+ * A builder class for creating OAuth1 authorization headers.
+ */
+public class OAuth1AuthorizationHeaderBuilder {
 	private String consumerSecret;
 	private String httpMethod;
 	private String signingKey;
@@ -24,30 +27,70 @@ public class OAuth1HeaderBuilder {
 	private final Map<String, String> queryParametersMap = new LinkedHashMap<>();
 	private static final URLCodec CODEC = new URLCodec();
 
+	/**
+	 * Default constructor for OAuth1HeaderBuilder.
+	 */
+	public OAuth1AuthorizationHeaderBuilder() {
+		// This constructor is intentionally empty.
+	}
+
+	/**
+	 * Default constructor for OAuth1HeaderBuilder.
+	 */
 	public String getConsumerSecret() {
 		return consumerSecret;
 	}
 
+	/**
+	 * Gets the HTTP method.
+	 *
+	 * @return the HTTP method
+	 */
 	public String getHttpMethod() {
 		return httpMethod;
 	}
 
+	/**
+	 * Gets the signing key.
+	 *
+	 * @return the signing key
+	 */
 	public String getSigningKey() {
 		return signingKey;
 	}
 
+	/**
+	 * Gets the token secret.
+	 *
+	 * @return the token secret
+	 */
 	public String getTokenSecret() {
 		return tokenSecret;
 	}
 
+	/**
+	 * Gets the URL.
+	 *
+	 * @return the URL
+	 */
 	public String getUrl() {
 		return url;
 	}
 
+	/**
+	 * Gets the parameters.
+	 *
+	 * @return the parameters
+	 */
 	public Map<String, String> getParameters() {
 		return parameters;
 	}
 
+	/**
+	 * Gets the query parameters map.
+	 *
+	 * @return the query parameters map
+	 */
 	public Map<String, String> getQueryParametersMap() {
 		return queryParametersMap;
 	}
@@ -60,7 +103,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the parameter name is null or empty, or if the parameter value is null
 	 */
-	public OAuth1HeaderBuilder addParameter(String name, String value) {
+	public OAuth1AuthorizationHeaderBuilder addParameter(String name, String value) {
 		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Parameter name cannot be null or empty");
 		}
@@ -78,7 +121,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the query parameter is null or empty
 	 */
-	public OAuth1HeaderBuilder addQueryParameter(String queryParameter) {
+	public OAuth1AuthorizationHeaderBuilder addQueryParameter(String queryParameter) {
 		if (queryParameter == null || queryParameter.isEmpty()) {
 			throw new IllegalArgumentException("Query parameter cannot be null or empty");
 		}
@@ -99,7 +142,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the consumer secret is null
 	 */
-	public OAuth1HeaderBuilder setConsumerSecret(String consumerSecret) {
+	public OAuth1AuthorizationHeaderBuilder setConsumerSecret(String consumerSecret) {
 		if (consumerSecret == null) {
 			throw new IllegalArgumentException("Consumer secret cannot be null");
 		}
@@ -114,7 +157,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the method is null or empty
 	 */
-	public OAuth1HeaderBuilder setHttpMethod(String method) {
+	public OAuth1AuthorizationHeaderBuilder setHttpMethod(String method) {
 		if (method == null || method.isEmpty()) {
 			throw new IllegalArgumentException("Method cannot be null or empty");
 		}
@@ -129,7 +172,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the token secret is null
 	 */
-	public OAuth1HeaderBuilder setTokenSecret(String tokenSecret) {
+	public OAuth1AuthorizationHeaderBuilder setTokenSecret(String tokenSecret) {
 		if (tokenSecret == null) {
 			throw new IllegalArgumentException("Token secret cannot be null");
 		}
@@ -146,7 +189,7 @@ public class OAuth1HeaderBuilder {
 	 * @return the current instance for method chaining
 	 * @throws IllegalArgumentException if the URL is null or empty
 	 */
-	public OAuth1HeaderBuilder setUrl(String url) {
+	public OAuth1AuthorizationHeaderBuilder setUrl(String url) {
 		if (url == null || url.isBlank()) {
 			throw new IllegalArgumentException("URL cannot be null or empty");
 		}

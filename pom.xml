@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.renefatuaki</groupId>
-	<artifactId>oauth1-header-builder</artifactId>
+	<artifactId>oauth1-authorization-header-builder</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
